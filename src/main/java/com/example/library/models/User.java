@@ -15,6 +15,8 @@ public class User {
     private Long id;
     private String name;
     private String MobileNumber;
+    private String email;
+    private String password;
     @OneToMany(mappedBy = "user")
     private List<BookItem> transactions;
 }
