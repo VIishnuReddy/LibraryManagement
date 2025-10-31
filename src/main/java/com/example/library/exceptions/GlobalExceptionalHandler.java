@@ -17,4 +17,9 @@ public class GlobalExceptionalHandler {
     public ResponseEntity<String> handleInvalidLogin(InvalidLoginFoundException ex){
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUser(UserNotFoundException ex){
+        return new ResponseEntity<>(ex.getMessage(),HttpStatus.BAD_REQUEST);
+    }
 }

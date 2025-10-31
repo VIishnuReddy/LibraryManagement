@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Service
@@ -17,12 +18,14 @@ public class BookService {
     private final Map<TransactionType, BookingStrategy> strategyMap;
     private final BookRepository bookRepository;
     private final BookItemRepository bookItemRepository;
+    private TransactionService transactionService;
     private ReturnService returnService;
 
     public BookService(List<BookingStrategy> strategies,
                        BookRepository bookRepository,
                        BookItemRepository bookItemRepository,
-                        ReturnService returnService) {
+                        ReturnService returnService,
+                       TransactionService transactionService) {
 
         this.bookRepository = bookRepository;
         this.bookItemRepository = bookItemRepository;
@@ -32,6 +35,7 @@ public class BookService {
             strategyMap.put(strategy.getTransactionType(), strategy);
         }
         this.returnService=returnService;
+        this.transactionService=transactionService;
     }
 
     public BookItem handleTransaction(TransactionType type, Long userId, Long bookId) {
@@ -39,11 +43,18 @@ public class BookService {
         if (strategy == null) {
             throw new RuntimeException("No strategy found for transaction type " + type);
         }
-        return strategy.processTransaction(userId, bookId);
+        BookItem bookItem = strategy.processTransaction(userId, bookId);
+        transactionService.recordTransaction(bookItem.getBook().getName(),
+                type.name(), bookItem.getUser(), bookItem.getBorrowDate());
+        return bookItem;
     }
 
     public String returnBook(String barcode) {
-       return returnService.returnBook(barcode);
+       Optional<BookItem> bookItem= bookItemRepository.findByBarcode(barcode);
+        transactionService.recordTransaction(bookItem.get().getBook().getName(),
+                                                TransactionType.RETURN.name(), bookItem.get().getUser(),
+                                                bookItem.get().getBorrowDate());
+        return returnService.returnBook(barcode);
     }
 
 

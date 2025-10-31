@@ -4,6 +4,7 @@ import com.example.library.factories.BookItemFactory;
 import com.example.library.models.*;
 import com.example.library.reposiories.BookItemRepository;
 import com.example.library.reposiories.BookRepository;
+import com.example.library.reposiories.TransactionRepository;
 import com.example.library.reposiories.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,7 @@ public class BuyStrategy implements BookingStrategy{
             book.setBookstatus(BookStatus.NOT_AVAILABLE);
         }
         bookRepository.save(book);
+
         return bookItem;
     }
 }
