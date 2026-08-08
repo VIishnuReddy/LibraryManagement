@@ -1,9 +1,13 @@
 package com.example.library.services;
 
+import com.example.library.exceptions.BookNotFoundException;
 import com.example.library.models.*;
 import com.example.library.reposiories.BookItemRepository;
 import com.example.library.reposiories.BookRepository;
 import com.example.library.strategies.BookingStrategy;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -57,5 +61,33 @@ public class BookService {
         return returnService.returnBook(barcode);
     }
 
+    @Cacheable(value = "booksList")
+    public List<Book> getBooks(){
+        return bookRepository.findAll();
+    }
 
+    @CachePut(value = "books", key = "#result.id")
+    public Book addBook(Book book){
+        return bookRepository.save(book);
+    }
+
+    @Cacheable(value = "books", key = "#id")
+    public Book getBookById(Long id){
+        return bookRepository.findById(id).orElseThrow(()->
+                new BookNotFoundException("Please enter a valid book id:"+id));
+    }
+
+    @CachePut(value = "books", key = "#id")
+    public Book updateBook(Long id, Book book){
+        Book existingbook = bookRepository.findById(id).orElseThrow(()
+                -> new BookNotFoundException("Book not found with id "+id));
+
+        existingbook.setName(book.getName());
+        existingbook.setPrice(book.getPrice());
+        existingbook.setGenre(book.getGenre());
+        existingbook.setBookstatus(book.getBookstatus());
+        existingbook.setQuantity(book.getQuantity());
+
+        return bookRepository.save(existingbook);
+    }
 }
