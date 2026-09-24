@@ -5,10 +5,7 @@ import com.example.library.dtos.UserRegistrationDto;
 import com.example.library.dtos.UserResponseDto;
 import com.example.library.services.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -26,5 +23,12 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<UserResponseDto> login(@RequestBody LoginRequestDto requestDto){
         return ResponseEntity.ok(userService.login(requestDto));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponseDto> getUserById(
+            @PathVariable String userId) {
+
+        return ResponseEntity.ok(userService.getUserById(userId));
     }
 }

@@ -18,6 +18,8 @@ public class UserService {
     public UserService(UserRepository userRepository){
         this.userRepository=userRepository;
     }
+
+
     public UserResponseDto registration(UserRegistrationDto registrationDto){
         if(userRepository.findByEmail(registrationDto.getEmail()).isPresent()){
             throw new UserAlreadyExistsException("User with Email "+ registrationDto.getEmail()+" already present" +
@@ -44,5 +46,13 @@ public class UserService {
 
         return new UserResponseDto(user.getId(), user.getEmail());
 
+    }
+
+    public UserResponseDto getUserById(String userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new UserResponseDto(user.getId(), user.getEmail());
     }
 }
